@@ -50,11 +50,14 @@ func (c *redisCache) Get(ctx context.Context, key string, out protoreflect.Proto
 	return proto.Unmarshal(data, out)
 }
 
-func (c *redisCache) Set(ctx context.Context, key string, val protoreflect.ProtoMessage, expiration time.Duration) error {
+func (c *redisCache) Set(ctx context.Context, key string, val protoreflect.ProtoMessage, expiration ...time.Duration) error {
 	data, err := proto.Marshal(val)
 	if err != nil {
 		return err
 	}
 	result := base64.StdEncoding.EncodeToString(data)
-	return c.rdb.SetEx(ctx, key, result, expiration).Err()
+	if len(expiration) > 0 {
+		return c.rdb.SetEx(ctx, key, result, expiration[0]).Err()
+	}
+	return c.rdb.Set(ctx, key, result, 0).Err()
 }

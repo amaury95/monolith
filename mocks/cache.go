@@ -51,15 +51,20 @@ func (mr *MockICacheMockRecorder) Get(arg0, arg1, arg2 interface{}) *gomock.Call
 }
 
 // Set mocks base method.
-func (m *MockICache) Set(arg0 context.Context, arg1 string, arg2 protoreflect.ProtoMessage, arg3 time.Duration) error {
+func (m *MockICache) Set(arg0 context.Context, arg1 string, arg2 protoreflect.ProtoMessage, arg3 ...time.Duration) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Set", arg0, arg1, arg2, arg3)
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Set", varargs...)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Set indicates an expected call of Set.
-func (mr *MockICacheMockRecorder) Set(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+func (mr *MockICacheMockRecorder) Set(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Set", reflect.TypeOf((*MockICache)(nil).Set), arg0, arg1, arg2, arg3)
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Set", reflect.TypeOf((*MockICache)(nil).Set), varargs...)
 }
