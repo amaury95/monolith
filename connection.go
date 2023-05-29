@@ -7,7 +7,7 @@ import (
 )
 
 type IConnection[T any] interface {
-	GetConnection(ctx context.Context) (*T, bool)
+	GetConnection(ctx context.Context) (T, bool)
 }
 
 //go:generate mockgen --destination=./mocks/connection.go --package=mocks github.com/amaury95/monolith Connection
