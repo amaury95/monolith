@@ -86,5 +86,9 @@ func (c *arangoClient) GetConnection(ctx context.Context) (driver.Database, bool
 	c.m.RLock()
 	defer c.m.RUnlock()
 
+	if _, err := c.db.Info(ctx); err != nil {
+		return nil, false // connection is not healthy
+	}
+
 	return c.db, true
 }
