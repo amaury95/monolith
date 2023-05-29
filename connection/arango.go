@@ -22,7 +22,7 @@ type arangoClient struct {
 }
 
 func NewArangoClient(cnf IConfig) *arangoClient {
-	return &arangoClient{m: sync.RWMutex{}}
+	return &arangoClient{cnf: cnf, m: sync.RWMutex{}}
 }
 
 func (c *arangoClient) Init(ctx context.Context) error {
