@@ -47,8 +47,11 @@ func (c *arangoClient) Init(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	
+
+	c.m.Lock()
 	c.c = &client
+	c.m.Unlock()
+
 	return nil
 }
 
