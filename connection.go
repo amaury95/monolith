@@ -6,7 +6,9 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-//go:generate mockgen --destination=./mocks/connection.go --package=mocks github.com/amaury95/monolith IConnection
-type IConnection interface {
-	GetConnection(ctx context.Context) (*sqlx.DB, bool)
+type IConnection[T any] interface {
+	GetConnection(ctx context.Context) (*T, bool)
 }
+
+//go:generate mockgen --destination=./mocks/connection.go --package=mocks github.com/amaury95/monolith Connection
+type Connection = IConnection[sqlx.DB]
