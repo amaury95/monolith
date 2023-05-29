@@ -10,11 +10,12 @@ import (
 
 type IConfig interface {
 	ArangoEndpoints(context.Context) ([]string, error)
+	ArangoDatabase(context.Context) (string, error)
 	ArangoRootPassword(context.Context) (string, error)
 }
 
 type arangoClient struct {
-	c   *driver.Client
+	db  driver.Database
 	cnf IConfig
 
 	m sync.RWMutex
@@ -48,16 +49,42 @@ func (c *arangoClient) Init(ctx context.Context) error {
 		return err
 	}
 
-	c.m.Lock()
-	c.c = &client
-	c.m.Unlock()
+	dbName, err := c.cnf.ArangoDatabase(ctx)
+	if err != nil {
+		return err
+	}
 
+	found, err := client.DatabaseExists(ctx, dbName)
+	if err != nil {
+		return err
+	}
+
+	if !found {
+		db, err := client.CreateDatabase(ctx, dbName, &driver.CreateDatabaseOptions{})
+		if err != nil {
+			return err
+		}
+		return c.setDb(db)
+	}
+
+	db, err := client.Database(ctx, dbName)
+	if err != nil {
+		return err
+	}
+	return c.setDb(db)
+}
+
+func (c *arangoClient) setDb(db driver.Database) error {
+	c.m.Lock()
+	defer c.m.Unlock()
+
+	c.db = db
 	return nil
 }
 
-func (c *arangoClient) GetConnection(ctx context.Context) (*driver.Client, bool) {
+func (c *arangoClient) GetConnection(ctx context.Context) (driver.Database, bool) {
 	c.m.RLock()
 	defer c.m.RUnlock()
 
-	return c.c, true
+	return c.db, true
 }
